@@ -1,0 +1,90 @@
+<!-- Latest compiled and minified CSS -->
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+<h1 style="margin-top:2em;">API Demo</h1>
+<div style="margin-top:5em;" class="container-fluid">
+	<div class="row" style="background-color: gainsboro">
+		<div class="col-sm-6" style="border-right: solid; margin-top: 5em;">
+			<form>
+          <h3>Type in url of the image:</h3>
+			    <input type="text" name="Image URL" id="url_box">
+          <button onclick = "sendRequest(event)">Check</button>
+			    <br>
+			    <br>
+			   
+			    <div style="height:300px; border: solid; width: 50%">
+			    	<img id="input_img" src="" alt="Image preview..." style="height:300px;">
+			    </div>
+			</form>
+		</div>
+	<br>
+		<div class="col-sm-6">
+			<div style="border-bottom:solid; height: 100px; width: 50%;"><p style="font-size: 25px;" id="score"></p></div>
+			<br>
+			<br>
+			<div style="height:300px; border: solid; width: 50%">
+			    <img id="output_img" src="" alt="Image preview..." style="height:300px;">
+			</div>
+			<br>
+			<div style ="display:none;" id="normal"><h2>No further investigation recommended </h2></div>
+			<div style ="display:none;" id="abnormal"><h2>Further investigation recommended</h2></div>
+		</div>
+	</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+</body>
+
+
+<script>
+   function previewFile(){
+       var preview = document.querySelector('img'); //selects the query named img
+       var file    = document.querySelector('input[type=file]').files[0]; //sames as here
+       var reader  = new FileReader();
+
+       reader.onloadend = function () {
+           preview.src = reader.result;
+       }
+
+       if (file) {
+           reader.readAsDataURL(file); //reads the data as a URL
+       } else {
+           preview.src = "";
+       }
+  }
+
+  previewFile();  //calls the function named previewFile()
+    
+    function sendRequest(e){
+    	e.preventDefault();
+        $.get(
+            "http://104.196.225.45:5000/scan",
+            {
+                url: $("#url_box").val()
+            }).done(function(data){
+                var s = data.score;
+    			$("#input_img").attr('src', data.original); 
+    			$("#score").html("The abnormality index of the given image is " + s );
+    			if(s < 0.5){
+    				$("#JSON").html("No obvious pulmonary mass lesion or consolidation is seen.<br> Cardiac outline is normal.");
+    				$("#normal").show();
+    			} else{
+    				$("#output_img").attr('src', data.heatmap);
+    				$("#abnormal").show();
+    			}
+            })
+       
+    }
+
+  </script>
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
